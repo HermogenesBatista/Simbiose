@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from models.Model import ConectCassandra, ConnectElasticsearch
 import uuid
 from random import *
+from datetime import *
 
 __author__ = 'Administrador'
 
@@ -33,8 +34,10 @@ if __name__ == '__main__':
     last_name = ['Batista', 'Xavier', 'Rodrigues', 'Moreira', 'Alves', 'Xum', 'Mezacaza', 'Minerva', 'Zambi', 'Souza', 'Loyota']
     sexo = ['M', 'F']
 
+    es.get_dados(type=typeDB)
 
-    for i in range(100):
+'''
+    for i in range(1):
         id = uuid.uuid4()
 
         if randrange(0, 2) == 1:
@@ -48,8 +51,8 @@ if __name__ == '__main__':
         dados = {
             'user_name': user_name,
             'gender': choice(sexo),
+            'birth_year': randint(1900, 2015),
+            'date': datetime.now()
 
         }
-        es.insert_dados(typeDB, dados, id)
-
-    es.get_dados(type=typeDB)
+        es.insert_dados(type=typeDB, values=dados, key=id)'''

@@ -13,8 +13,8 @@ class ConectCassandra:
     keyspace = None
 
     def __init__(self, keyspace):
-        self.clust = Cluster()
-        self.session = self.clust.connect()
+        #self.clust = Cluster()
+        #self.session = self.clust.connect()
         self.keyspace = keyspace
 
 
@@ -38,7 +38,7 @@ class ConectCassandra:
         return self.result
 
 
-    def create_query(self, type_query='SELECT', table='', dados={}):
+    def create_query(self, type_query='SELECT', table='', dados=[{}]):
 
         values = " "
         if(type_query == 'SELECT'):
@@ -47,10 +47,52 @@ class ConectCassandra:
             if(dados):
                 values += " WHERE "
                 cont = 0
-                for key, values in dados.iteritems():
+                for key, value in dados[0].iteritems():
                     if(cont > 0):
                         values +=" AND "
-                    values += key+' = '
+                    values += key+' = %('+key+')s '
+
+                    cont += 1
+
+                query +=values
+            else:
+                print('n entrou')
+
+        if(type_query == 'INSERT'):
+            query = type_query+' INTO '+table+" ("
+
+            if(dados):
+
+                values += " VALUES("
+                cont = 0
+
+                for key, value in dados[0].iteritems():
+
+                    if(cont > 0):
+                        query += ', '+key
+                        values +=", %("+key+")s "
+                    else:
+                        query += key
+                        values += '%('+key+')s '
+
+                    cont += 1
+
+
+                for key, value in dados[1].iteritems():
+
+                    if(cont > 0):
+                        query += ', '+key
+                        values +=", %("+key+")s "
+                    else:
+                        query += key
+                        values += '%('+key+')s '
+
+                    cont += 1
+
+                values += ')'
+                query +=')'+values
+
+        return query
 
     def print_results(self, resultado):
         for row in resultado:
@@ -65,24 +107,25 @@ class ConnectElasticsearch:
         self.index = index
 
     def insert_dados(self, type, values, key=uuid.uuid4()):
+        #print(key)
         self.result = self.conn.index(index=self.index, doc_type=type,  id=key, body=values)
-        print self.result['created']
+        #print self.result['created']
 
     def get_dados(self, type, values='', key=''):
         if(not values):
             self.result = self.conn.search(index=self.index, doc_type=type, body={'query': {'match_all': {}}})
-            print(self.result['hits'])
-            print(self.result['hits']['total'])
+            #print(self.result['hits'])
+            #print(self.result['hits']['total'])
 
         else:
 
             if(id):
                 self.result = self.conn.get(index=self.index, doc_type=type, id=key)
-                print(self.result['hits']['total'])
-                print(self.result['hits'])
+                #print(self.result['hits']['total'])
+                #print(self.result['hits'])
 
             else:
                 self.result = self.conn.search()
-                print(self.result['hits'])
+                #print(self.result['hits'])
 
         return self.result

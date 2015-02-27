@@ -34,10 +34,8 @@ if __name__ == '__main__':
     last_name = ['Batista', 'Xavier', 'Rodrigues', 'Moreira', 'Alves', 'Xum', 'Mezacaza', 'Minerva', 'Zambi', 'Souza', 'Loyota']
     sexo = ['M', 'F']
 
-    es.get_dados(type=typeDB)
 
-'''
-    for i in range(1):
+    for i in range(1000):
         id = uuid.uuid4()
 
         if randrange(0, 2) == 1:
@@ -55,4 +53,7 @@ if __name__ == '__main__':
             'date': datetime.now()
 
         }
-        es.insert_dados(type=typeDB, values=dados, key=id)'''
+        es.insert_dados(type=typeDB, values=dados, key=id)
+
+
+    #es.get_dados(type=typeDB)

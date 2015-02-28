@@ -35,7 +35,7 @@ class ConectCassandra:
         else:
 
             self.result = self.session.execute(consulta)
-
+        self.session.shutdown()
         return self.result
 
 

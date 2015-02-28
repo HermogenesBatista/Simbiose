@@ -33,12 +33,13 @@ class ConectCassandra:
             self.result = self.session.execute(consulta, user)
             #print(self.result)
         else:
+
             self.result = self.session.execute(consulta)
 
         return self.result
 
 
-    def create_query(self, type_query='SELECT', table='', dados=[{}]):
+    def create_query(self, type_query='SELECT', table='', dados=''):
 
         values = " "
         if(type_query == 'SELECT'):
@@ -109,20 +110,24 @@ class ConnectElasticsearch:
         print self.result['created']
 
     def get_dados(self, type, values='', key=''):
-        if(not values):
+        if not values and not key:
             self.result = self.conn.search(index=self.index, doc_type=type, body={'query': {'match_all': {}}})
-            #print(self.result['hits'])
+            print(self.result['hits']['hits'][0]['_id'])
+            print(self.result['hits']['hits'][0]['_source'])
             #print(self.result['hits']['total'])
 
         else:
 
-            if(key):
+            if key:
                 self.result = self.conn.get(index=self.index, doc_type=type, id=key)
                 #print(self.result['hits']['total'])
-                #print(self.result['hits'])
+                print(self.result['hits'])
 
-            else:
-                self.result = self.conn.search()
+            #else:
+                #self.result = self.conn.search()
                 #print(self.result['hits'])
 
         return self.result
+
+    def prepare_to_cassandra(self):
+        self.retorno = []

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from datetime import *
+import time
 from models.Model import *
 
 __author__ = 'Administrador'
@@ -17,5 +18,6 @@ if __name__ == '__main__':
     cluster.print_results(cluster.result)
 
     es.get_dados(type=typeDB)
+
 
     print(datetime.now())

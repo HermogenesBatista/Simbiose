@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sexo = ['M', 'F']
 
 
-    for i in range(100):
+    for i in range(10000):
         id = uuid.uuid4()
 
         if randrange(0, 2) == 1:

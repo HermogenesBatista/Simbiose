@@ -107,7 +107,7 @@ class ConnectElasticsearch:
     def insert_dados(self, type, values, key=uuid.uuid4()):
         #print(key)
         self.result = self.conn.index(index=self.index, doc_type=type,  id=key, body=values)
-        print self.result['created']
+        #print self.result['created']
 
     def get_dados(self, type, values='', key=''):
         if not values and not key:

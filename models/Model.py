@@ -13,8 +13,8 @@ class ConectCassandra:
     keyspace = None
 
     def __init__(self, keyspace):
-        #self.clust = Cluster()
-        #self.session = self.clust.connect()
+        self.clust = Cluster()
+        self.session = self.clust.connect()
         self.keyspace = keyspace
 
 
@@ -28,10 +28,10 @@ class ConectCassandra:
         self.conect()
 
         if user:
-            prepared = self.session.prepare(consulta)
-            self.consul = prepared.bind([user.gender])
-            self.result = self.session.execute(self.consul)
-            print(self.result)
+            #prepared = self.session.prepare(consulta)
+            #self.consul = prepared.bind(user)
+            self.result = self.session.execute(consulta, user)
+            #print(self.result)
         else:
             self.result = self.session.execute(consulta)
 
@@ -47,7 +47,7 @@ class ConectCassandra:
             if(dados):
                 values += " WHERE "
                 cont = 0
-                for key, value in dados[0].iteritems():
+                for key in dados[0].keys():
                     if(cont > 0):
                         values +=" AND "
                     values += key+' = %('+key+')s '
@@ -66,19 +66,16 @@ class ConectCassandra:
                 values += " VALUES("
                 cont = 0
 
-                for key, value in dados[0].iteritems():
+                key = dados[0].keys()
 
-                    if(cont > 0):
-                        query += ', '+key
-                        values +=", %("+key+")s "
-                    else:
-                        query += key
-                        values += '%('+key+')s '
+                #print(key[0])
 
-                    cont += 1
+                query += key[0]
+                values += '%('+key[0]+')s '
 
+                cont += 1
 
-                for key, value in dados[1].iteritems():
+                for key in dados[1].keys():
 
                     if(cont > 0):
                         query += ', '+key
@@ -90,7 +87,7 @@ class ConectCassandra:
                     cont += 1
 
                 values += ')'
-                query +=')'+values
+                query += ')'+values
 
         return query
 
@@ -109,7 +106,7 @@ class ConnectElasticsearch:
     def insert_dados(self, type, values, key=uuid.uuid4()):
         #print(key)
         self.result = self.conn.index(index=self.index, doc_type=type,  id=key, body=values)
-        #print self.result['created']
+        print self.result['created']
 
     def get_dados(self, type, values='', key=''):
         if(not values):
@@ -119,7 +116,7 @@ class ConnectElasticsearch:
 
         else:
 
-            if(id):
+            if(key):
                 self.result = self.conn.get(index=self.index, doc_type=type, id=key)
                 #print(self.result['hits']['total'])
                 #print(self.result['hits'])

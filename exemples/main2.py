@@ -57,6 +57,12 @@ if __name__ == '__main__':
         if randint(0, 1) == 1:
             es.insert_dados(type=typeDB, values=dados, key=id)
 
+            if randint(0, 1) == 1:
+                r = cluster.create_query(type_query='INSERT', table='users', dados=doc)
+                doc[0].update(doc[1])
+                z = doc[0]
+                cluster.exect(r, z)
+
         else:
             r = cluster.create_query(type_query='INSERT', table='users', dados=doc)
             doc[0].update(doc[1])

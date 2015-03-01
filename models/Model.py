@@ -110,14 +110,14 @@ class ConnectElasticsearch:
     def get_dados(self, type, values='', key=''):
         if not values and not key:
             self.result = self.conn.search(index=self.index, doc_type=type, body={'query': {'match_all': {}}})
-            print(self.result['hits']['hits'])
+            #print(self.result['hits']['hits'])
             #print(self.result['hits']['total'])
 
         else:
 
             if key:
                 self.result = self.conn.get(index=self.index, doc_type=type, id=key)
-                print(self.result)
+                #print(self.result)
                 #print(self.result['hits'])
 
             #else:
@@ -128,26 +128,24 @@ class ConnectElasticsearch:
 
     def prepare_to_cassandra(self, row={}):
 
+        doc = []
         if(row):
-            doc = []
+
 
             try:
                 doc = [{'id': row['_id']}, row['_source']]
 
             except:
-                for line in row['hits']['hits']:
-                    doc.append([{'id': line['_id']}, line['_source']])
+                doc = [[{'id': r['_id']}, r['_source']] for r in self.result['hits']['hits']]
+
 
         else:
-            doc = []
-
             try:
                 doc = [{'id': self.result['_id']}, self.result['_source']]
 
             except:
-                print('ali')
-                for line in self.result['hits']['hits']:
-                    doc.append([{'id': line['_id']}, line['_source']])
+
+                doc = [[{'id': r['_id']}, r['_source']] for r in self.result['hits']['hits']]
 
         self.retorno = doc
 

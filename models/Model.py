@@ -95,6 +95,8 @@ class ConectCassandra:
 
 
 class ConnectElasticsearch:
+    retorno = ''
+    result = ''
 
     def __init__(self, index):
         self.conn = Elasticsearch()
@@ -127,24 +129,25 @@ class ConnectElasticsearch:
     def prepare_to_cassandra(self, row={}):
 
         if(row):
-            print '2'
-            doc = [{'id': row['hits']['hits'][0]['_id']}, {row['hits']['hits'][0]['_source']}]
-
-            print(doc)
-        else:
-            print('3')
             doc = []
 
             try:
-                print('aqui')
+                doc = [{'id': row['_id']}, row['_source']]
+
+            except:
+                for line in row['hits']['hits']:
+                    doc.append([{'id': line['_id']}, line['_source']])
+
+        else:
+            doc = []
+
+            try:
                 doc = [{'id': self.result['_id']}, self.result['_source']]
-                print(doc)
 
             except:
                 print('ali')
                 for line in self.result['hits']['hits']:
                     doc.append([{'id': line['_id']}, line['_source']])
-
 
         self.retorno = doc
 

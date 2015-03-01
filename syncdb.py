@@ -20,8 +20,6 @@ if __name__ == '__main__':
     #res = es.get_dados(type=typeDB, key='eaf0accf-e960-4176-95a2-112c3ef1812b')
     res = es.get_dados(type=typeDB)
 
-    print('1', res)
-
-    retorno = es.prepare_to_cassandra()
+    retorno = es.prepare_to_cassandra(res)
 
     print(datetime.now())

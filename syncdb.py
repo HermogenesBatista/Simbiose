@@ -13,11 +13,15 @@ if __name__ == '__main__':
     cluster = ConectCassandra('test')
     es = ConnectElasticsearch('test')
 
-    query = cluster.create_query(table=typeDB)
+    '''query = cluster.create_query(table=typeDB)
     cluster.exect(consulta=query)
-    cluster.print_results(cluster.result)
+    cluster.print_results(cluster.result)'''
 
-    es.get_dados(type=typeDB)
+    #res = es.get_dados(type=typeDB, key='eaf0accf-e960-4176-95a2-112c3ef1812b')
+    res = es.get_dados(type=typeDB)
 
+    print('1', res)
+
+    retorno = es.prepare_to_cassandra()
 
     print(datetime.now())

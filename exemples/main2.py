@@ -32,8 +32,10 @@ if __name__ == '__main__':
     last_name = ['Batista', 'Xavier', 'Rodrigues', 'Moreira', 'Alves', 'Xum', 'Mezacaza', 'Minerva', 'Zambi', 'Souza', 'Loyota']
     sexo = ['M', 'F']
 
+    arq = open('doc.txt', 'w')
 
-    for i in range(10000):
+
+    for i in range(20):
         id = uuid.uuid4()
 
         if randrange(0, 2) == 1:
@@ -63,7 +65,14 @@ if __name__ == '__main__':
                 z = doc[0]
                 cluster.exect(r, z)
 
+                arq.write(str(id)+" \r"+dados['user_name'])
+
         else:
+            if randint(0, 1) == 1:
+                es.insert_dados(type=typeDB, values=dados, key=id)
+                arq.write(str(id)+" \r"+dados['user_name'])
+
+
             r = cluster.create_query(type_query='INSERT', table='users', dados=doc)
             doc[0].update(doc[1])
             z = doc[0]
@@ -72,11 +81,9 @@ if __name__ == '__main__':
 
     #print(doc[0])
     #print r % z
-
-
-
     #r = cluster.create_query(table='users', dados=doc)
-
     #cluster.exect(r, doc[0])
+
+    arq.close()
 
     print(datetime.now())

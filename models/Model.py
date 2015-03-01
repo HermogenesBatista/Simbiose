@@ -17,6 +17,8 @@ class ConectCassandra:
         self.session = self.clust.connect()
         self.keyspace = keyspace
 
+        self.conect()
+
 
     def conect(self):
         self.session.set_keyspace(self.keyspace)
@@ -25,17 +27,13 @@ class ConectCassandra:
 
     def exect(self, consulta, user=''):
 
-        self.conect()
-
         if user:
-            #prepared = self.session.prepare(consulta)
-            #self.consul = prepared.bind(user)
             self.result = self.session.execute(consulta, user)
-            #print(self.result)
+
         else:
 
             self.result = self.session.execute(consulta)
-        self.session.shutdown()
+
         return self.result
 
 
@@ -68,8 +66,6 @@ class ConectCassandra:
                 cont = 0
 
                 key = dados[0].keys()
-
-                #print(key[0])
 
                 query += key[0]
                 values += '%('+key[0]+')s '
@@ -112,16 +108,15 @@ class ConnectElasticsearch:
     def get_dados(self, type, values='', key=''):
         if not values and not key:
             self.result = self.conn.search(index=self.index, doc_type=type, body={'query': {'match_all': {}}})
-            print(self.result['hits']['hits'][0]['_id'])
-            print(self.result['hits']['hits'][0]['_source'])
+            print(self.result['hits']['hits'])
             #print(self.result['hits']['total'])
 
         else:
 
             if key:
                 self.result = self.conn.get(index=self.index, doc_type=type, id=key)
-                #print(self.result['hits']['total'])
-                print(self.result['hits'])
+                print(self.result)
+                #print(self.result['hits'])
 
             #else:
                 #self.result = self.conn.search()
@@ -129,5 +124,28 @@ class ConnectElasticsearch:
 
         return self.result
 
-    def prepare_to_cassandra(self):
-        self.retorno = []
+    def prepare_to_cassandra(self, row={}):
+
+        if(row):
+            print '2'
+            doc = [{'id': row['hits']['hits'][0]['_id']}, {row['hits']['hits'][0]['_source']}]
+
+            print(doc)
+        else:
+            print('3')
+            doc = []
+
+            try:
+                print('aqui')
+                doc = [{'id': self.result['_id']}, self.result['_source']]
+                print(doc)
+
+            except:
+                print('ali')
+                for line in self.result['hits']['hits']:
+                    doc.append([{'id': line['_id']}, line['_source']])
+
+
+        self.retorno = doc
+
+        return self.retorno

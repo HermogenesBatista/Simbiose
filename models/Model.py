@@ -97,7 +97,6 @@ class ConectCassandra:
         #print(z)
         z['id'] = uuid.UUID(z['id'])
         z['date'] = self.formata_datetime(z['date'])
-        print(z, r)
         self.exect(r, z)
 
     def formata_datetime(self, data):
@@ -149,7 +148,6 @@ class ConnectElasticsearch:
                 doc = [{'id': self.result['_id']}, self.result['_source']]
 
             except:
-
                 doc = [[{'id': r['_id']}, r['_source']] for r in self.result['hits']['hits']]
 
         self.retorno = doc

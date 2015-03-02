@@ -19,23 +19,21 @@ class ConectCassandra:
 
         self.conect()
 
-
     def conect(self):
         self.session.set_keyspace(self.keyspace)
         self.session.row_factory = dict_factory
 
-
     def exect(self, consulta, user=''):
-
         if user:
             self.result = self.session.execute(consulta, user)
 
         else:
-
             self.result = self.session.execute(consulta)
 
-        return self.result
+        if(self.result):
+            return True
 
+        return False
 
     def create_query(self, type_query='SELECT', table='', dados=''):
 
@@ -53,9 +51,7 @@ class ConectCassandra:
 
                     cont += 1
 
-                query +=values
-            else:
-                print('n entrou')
+                query += values
 
         if(type_query == 'INSERT'):
             query = type_query+' INTO '+table+" ("
@@ -93,6 +89,12 @@ class ConectCassandra:
             for key, values in row.iteritems():
                 print key, values
 
+    def received_to_elasticsearch(self, dados):
+        r = self.create_query(type_query='INSERT', table='users', dados=dados)
+        dados[0].update(dados[1])
+        z = dados[0]
+        self.exect(r, z)
+
 
 class ConnectElasticsearch:
     retorno = ''
@@ -103,41 +105,29 @@ class ConnectElasticsearch:
         self.index = index
 
     def insert_dados(self, type, values, key=uuid.uuid4()):
-        #print(key)
         self.result = self.conn.index(index=self.index, doc_type=type,  id=key, body=values)
-        #print self.result['created']
+        return self.result['created']
 
-    def get_dados(self, type, values='', key=''):
+    def get_dados(self, type, values='', key='', sizes=1000):
         if not values and not key:
-            self.result = self.conn.search(index=self.index, doc_type=type, body={'query': {'match_all': {}}})
-            #print(self.result['hits']['hits'])
-            #print(self.result['hits']['total'])
+            self.result = self.conn.search(index=self.index, doc_type=type, size=sizes, body={'query': {'match_all': {}}})
 
-        else:
+            if(self.result['hits']['total'] > 0):
+                return True
+            return False
 
-            if key:
-                self.result = self.conn.get(index=self.index, doc_type=type, id=key)
-                #print(self.result)
-                #print(self.result['hits'])
+        elif(key):
+            self.result = self.conn.get(index=self.index, doc_type=type, id=key, ignore=404)
 
-            #else:
-                #self.result = self.conn.search()
-                #print(self.result['hits'])
-
-        return self.result
+            return self.result['found']
 
     def prepare_to_cassandra(self, row={}):
-
-        doc = []
         if(row):
-
-
             try:
                 doc = [{'id': row['_id']}, row['_source']]
 
             except:
                 doc = [[{'id': r['_id']}, r['_source']] for r in self.result['hits']['hits']]
-
 
         else:
             try:

@@ -16,51 +16,59 @@ if __name__ == '__main__':
     es = ConnectElasticsearch('test')
     sync = Sincronizar()
 
-    '''query = cluster.create_query(table=typeDB)
-    cluster.exect(consulta=query)
-    cluster.print_results(cluster.result)'''
+    '''dados = {
+        'user_name': 'Layane Rodrigues da Silva',
+        'gender': 'F',
+        'birth_year': randint(1900, 2015),
+        'date': datetime.now()
+    }
 
-    dados = {
-            'user_name': 'Layane Rodrigues da Silva',
-            'gender': 'F',
-            'birth_year': randint(1900, 2015),
-            'date': datetime.now()
-
-        }
-
-    doc = [{'id': uuid.UUID('eaf0accf-e960-4176-95a2-112c3ef1812b')}, dados]
+    doc = [{'id': uuid.UUID('eaf0accf-e960-4176-95a2-112c3ef1812b')}, dados]'''
 
     #elastic = es.get_dados(typeDB, key=doc[0]['id'])
     elastic = es.get_dados(typeDB)
 
-    query = cluster.create_query(table=typeDB, dados=doc)
+    #query = cluster.create_query(table=typeDB, dados=doc)
 
-    l = es.prepare_to_cassandra(elastic)
-    r = cluster.exect(query, doc[0])
+    query = cluster.create_query(table=typeDB)
 
-    #print(r[0]['date'])
-    #print(l[0][1]['date'].replace('T', ' '))
-    dt = l[0][1]['date'].replace('T', ' ')
-    #print(dt)
-    dt_elastic = sync.transf_datetime(dt)
+    cassandra = cluster.exect(query)
+    #cassandra = cluster.exect(query, doc[0])
 
-    if(sync.verifica_data(dt_elastic, r[0]['date'])):
-        print('Elastic Menor')
-    else:
-        print('Cassandra')
+    if(elastic and cassandra):
+        dados_cassandra = cluster.result
 
-    print(r)
+        prepare_to_cassandra = es.prepare_to_cassandra(es.result)
 
-    #r = cluster.create_query(type_query='INSERT', table='users', dados=doc)
+        cassandra_iter = sync.iterable_resources(dados_cassandra)
+        elastic_search = sync.iterable_resources(prepare_to_cassandra)
 
-    #print(r)
-    #doc[0].update(doc[1])
-    #z = doc[0]
-    #cluster.exect(r, z)
+        for row in elastic_search:
+            indice = sync.exist_id(row, cassandra_iter)
 
-    #res = es.get_dados(type=typeDB, key='eaf0accf-e960-4176-95a2-112c3ef1812b')
-    #res = es.get_dados(type=typeDB)
+            if(indice):
+                print(indice)
+                '''aqui deveria excluir o indice da listagem dos recursos dentro da lista do cassandra'''
 
-    #retorno = es.prepare_to_cassandra(res)
+        print(prepare_to_cassandra[0])
+        print(dados_cassandra[0])
+        try:
+            dt_elastic = sync.transf_datetime(prepare_to_cassandra[1]['date'])
+
+        except:
+            dt_elastic = sync.transf_datetime(prepare_to_cassandra[0][1]['date'])
+
+        if(sync.verifica_data(dt_elastic, dados_cassandra[0]['date'])):
+            print('Elastic Menor - Prevalece o Cassandra')
+        else:
+            print('Cassandra Menor - Prevalece o ElasticSearch')
+
+        #print(sync.exist_id(cassandra_iter[0], elastic_search))
+        #print('Cassandra', cassandra_iter)
+        #print('ElasticSearch', elastic_search)
+
+        #print(cassandra_iter[0])
+        #print(dados_cassandra[0])
+        #print(prepare_to_cassandra[0])
 
     print(datetime.now())

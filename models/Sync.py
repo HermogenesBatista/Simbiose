@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-from models.Model import *
 from datetime import datetime
 __author__ = 'Administrador'
 
@@ -21,3 +20,27 @@ class Sincronizar:
         dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
 
         return dt
+
+    def iterable_resources(self, dados):
+        try:
+            #print(len(dados), dados)
+            #print(dados[0]['id'])
+            if(len(dados) > 2):
+                temp = [str(ids[0]['id']) for ids in dados]
+            else:
+                temp = [str(dados[0]['id'])]
+
+        except KeyError:
+            #print(len(dados), dados)
+            if(len(dados) > 2):
+                temp = [str(ids['id']) for ids in dados]
+            else:
+                temp = [str(dados[0]['id'])]
+
+        return temp
+
+    def exist_id(self, search, lista):
+        if(search in lista):
+            return lista.index(search)
+        else:
+            return False

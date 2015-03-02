@@ -60,6 +60,9 @@ if __name__ == '__main__':
                         # Data Cassandra Menor - Prevalece o ElasticSearch
                         cluster.received_to_elasticsearch(prepare_to_cassandra[indice])
 
+                    #verifica = 2 equivale a data igual, não sendo necessario atualizar nada
+
+                    #Ids já verificados na inspeção do Cassandra to Elasticsearch
                     sincronizado.append(row)
                     count += 1
 

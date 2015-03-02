@@ -28,14 +28,14 @@ if __name__ == '__main__':
         }
     ]'''
 
-    names = ['Moge', 'Layane', 'Arthur', 'Cristiano', 'Cesar', 'Coruripe', 'Flamengo', 'Branquinha', 'Mainha', 'Thiago', 'Renato']
-    last_name = ['Batista', 'Xavier', 'Rodrigues', 'Moreira', 'Alves', 'Xum', 'Mezacaza', 'Minerva', 'Zambi', 'Souza', 'Loyota']
+    names = ['Moge', 'Layane', 'Arthur', 'Cristiano', 'Cesar', 'Coruripe', 'Flamengo', 'Branquinha', 'Mainha', 'Thiago', 'Renato', 'Marin', 'Joaquim', 'Juca']
+    last_name = ['Batista', 'Xavier', 'Rodrigues', 'Moreira', 'Alves', 'Xum', 'Mezacaza', 'Minerva', 'Zambi', 'Souza', 'Loyota', 'Toshiba', "Brastemp", "Topadao"]
     sexo = ['M', 'F']
 
     arq = open('doc.txt', 'w')
 
 
-    for i in range(20):
+    for i in range(150):
         id = uuid.uuid4()
 
         if randrange(0, 2) == 1:

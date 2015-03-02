@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
+from datetime import datetime
 from cassandra.cluster import Cluster
 from cassandra.query import dict_factory
 
@@ -93,7 +94,21 @@ class ConectCassandra:
         r = self.create_query(type_query='INSERT', table='users', dados=dados)
         dados[0].update(dados[1])
         z = dados[0]
+        #print(z)
+        z['id'] = uuid.UUID(z['id'])
+        z['date'] = self.formata_datetime(z['date'])
+        print(z, r)
         self.exect(r, z)
+
+    def formata_datetime(self, data):
+        dt = data.replace('T', ' ')
+        try:
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
+        except:
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+
+        return dt
+
 
 
 class ConnectElasticsearch:
@@ -140,3 +155,8 @@ class ConnectElasticsearch:
         self.retorno = doc
 
         return self.retorno
+
+    def received_to_cassandra(self, type, dados):
+        send = [{'id': dados.pop('id')}, dados]
+        #print(send)
+        self.insert_dados(type=type, values=send[1], key=send[0]['id'])

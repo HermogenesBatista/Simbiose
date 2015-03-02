@@ -10,14 +10,19 @@ class Sincronizar:
 
     def verifica_data(self, data1, data2):
 
-        if(data1 <= data2):
-            return True
+        if(data1 < data2):
+            return 1
+        elif(data1 == data2):
+            return 2
         else:
-            return False
+            return 3
 
     def transf_datetime(self, data):
         dt = data.replace('T', ' ')
-        dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
+        try:
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
+        except:
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
 
         return dt
 

@@ -16,59 +16,92 @@ if __name__ == '__main__':
     es = ConnectElasticsearch('test')
     sync = Sincronizar()
 
-    '''dados = {
-        'user_name': 'Layane Rodrigues da Silva',
-        'gender': 'F',
-        'birth_year': randint(1900, 2015),
-        'date': datetime.now()
-    }
+    while True:
+        #elastic = es.get_dados(typeDB, key=doc[0]['id'])
+        elastic = es.get_dados(typeDB)
 
-    doc = [{'id': uuid.UUID('eaf0accf-e960-4176-95a2-112c3ef1812b')}, dados]'''
+        #query = cluster.create_query(table=typeDB, dados=doc)
 
-    #elastic = es.get_dados(typeDB, key=doc[0]['id'])
-    elastic = es.get_dados(typeDB)
+        query = cluster.create_query(table=typeDB)
 
-    #query = cluster.create_query(table=typeDB, dados=doc)
+        cassandra = cluster.exect(query)
+        #cassandra = cluster.exect(query, doc[0])
 
-    query = cluster.create_query(table=typeDB)
+        if(elastic and cassandra):
+            dados_cassandra = cluster.result
 
-    cassandra = cluster.exect(query)
-    #cassandra = cluster.exect(query, doc[0])
+            prepare_to_cassandra = es.prepare_to_cassandra(es.result)
 
-    if(elastic and cassandra):
-        dados_cassandra = cluster.result
+            cassandra_iter = sync.iterable_resources(dados_cassandra)
+            elastic_search = sync.iterable_resources(prepare_to_cassandra)
 
-        prepare_to_cassandra = es.prepare_to_cassandra(es.result)
+            print(len(cassandra_iter))
+            print(len(elastic_search))
+            count = 0
+            i = 0
+            sincronizado = []
+            for row in cassandra_iter:
+                indice = sync.exist_id(row, elastic_search)
 
-        cassandra_iter = sync.iterable_resources(dados_cassandra)
-        elastic_search = sync.iterable_resources(prepare_to_cassandra)
+                if(indice):
+                    try:
+                        dt_elastic = sync.transf_datetime(prepare_to_cassandra[1]['date'])
 
-        for row in elastic_search:
-            indice = sync.exist_id(row, cassandra_iter)
+                    except:
+                        dt_elastic = sync.transf_datetime(prepare_to_cassandra[indice][1]['date'])
 
-            if(indice):
-                print(indice)
-                '''aqui deveria excluir o indice da listagem dos recursos dentro da lista do cassandra'''
+                    #print('ElasticSearch ', prepare_to_cassandra[indice])
+                    #print("Cassandra", dados_cassandra[i])
+                    #print(dt_elastic, dados_cassandra[i]['date'])
 
-        print(prepare_to_cassandra[0])
-        print(dados_cassandra[0])
-        try:
-            dt_elastic = sync.transf_datetime(prepare_to_cassandra[1]['date'])
+                    verifica = sync.verifica_data(dt_elastic, dados_cassandra[i]['date'])
+                    if(verifica == 1):
+                        #print('Elastic Menor - Prevalece o Cassandra')
+                        es.received_to_cassandra(type=typeDB, dados=dados_cassandra[i])
+                    elif(verifica == 3):
+                        #print('Cassandra Menor - Prevalece o ElasticSearch')
+                        cluster.received_to_elasticsearch(prepare_to_cassandra[indice])
+                        #print(prepare_to_cassandra[indice])
 
-        except:
-            dt_elastic = sync.transf_datetime(prepare_to_cassandra[0][1]['date'])
+                    #else:
+                    #   print('Datas Iguais - Mantem')
 
-        if(sync.verifica_data(dt_elastic, dados_cassandra[0]['date'])):
-            print('Elastic Menor - Prevalece o Cassandra')
-        else:
-            print('Cassandra Menor - Prevalece o ElasticSearch')
+                    sincronizado.append(row)
+                    count += 1
 
-        #print(sync.exist_id(cassandra_iter[0], elastic_search))
-        #print('Cassandra', cassandra_iter)
-        #print('ElasticSearch', elastic_search)
+                else:
+                    #print('vai inserir no ElasticSearch e remover o índice na listagem dos Dados do Cassandra')
+                    es.received_to_cassandra(type=typeDB, dados=dados_cassandra[i])
 
-        #print(cassandra_iter[0])
-        #print(dados_cassandra[0])
-        #print(prepare_to_cassandra[0])
+                i += 1
 
-    print(datetime.now())
+            i = 0
+            for row in elastic_search:
+                verificado = sync.exist_id(row, sincronizado)
+
+                if(not verificado):
+                    #print(prepare_to_cassandra[i])
+                    #print(i)
+                    cluster.received_to_elasticsearch(prepare_to_cassandra[i])
+                    #print('efetuar insert')
+
+                i += 1
+
+            #print(sincronizado)
+            #print(len(elastic_search))
+            #print('qut encontrados: ', count)
+            #print(prepare_to_cassandra[0])
+            #print(len(dados_cassandra))
+
+
+            #print(sync.exist_id(cassandra_iter[0], elastic_search))
+            #print('Cassandra', cassandra_iter)
+            #print('ElasticSearch', elastic_search)
+
+            #print(cassandra_iter[0])
+            #print(dados_cassandra[0])
+            #print(prepare_to_cassandra[0])
+
+        print(datetime.now())
+
+        time.sleep(sync.time)

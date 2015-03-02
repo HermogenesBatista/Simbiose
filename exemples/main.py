@@ -17,15 +17,6 @@ class Users:
 
 
 if __name__ == '__main__':
-    '''cluster = ConectCassandra('test')
-    condicao = ("Arthur",)
-    query = "SELECT * FROM users WHERE gender=? "
-
-    users = Users('Moge', 'M')
-
-    cluster.exect(consulta=query, user=users)
-    cluster.print_results(cluster.result)'''
-
     typeDB = 'users'
 
     es = ConnectElasticsearch('test')

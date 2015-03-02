@@ -14,7 +14,13 @@ if __name__ == '__main__':
 
     cluster = ConectCassandra('test')
     es = ConnectElasticsearch('test')
-    sync = Sincronizar()
+
+    try:
+        tempo = int(input('Entre com o tempo em segundos \n(Obs: "ENTER" ou valor incorreto (não numérico) para 5 segundos de intervalo): '))
+    except:
+        tempo = 5
+
+    sync = Sincronizar(tempo)
 
     while True:
         elastic = es.get_dados(typeDB)

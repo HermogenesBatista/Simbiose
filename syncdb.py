@@ -78,6 +78,28 @@ if __name__ == '__main__':
 
                 i += 1
 
+        elif(cassandra and not elastic):
+            dados_cassandra = cluster.result
+            cassandra_iter = sync.iterable_resources(dados_cassandra)
+            i = 0
+            for row in cassandra_iter:
+                es.received_to_cassandra(type=typeDB, dados=dados_cassandra[i])
+
+                i += 1
+
+        elif(not cassandra and elastic):
+            prepare_to_cassandra = es.prepare_to_cassandra(es.result)
+
+            elastic_search = sync.iterable_resources(prepare_to_cassandra)
+
+            i = 0
+            for row in elastic_search:
+                cluster.received_to_elasticsearch(prepare_to_cassandra[i])
+
+                i += 1
+        else:
+            print('Ambos os bancos estão vazios! Não há dados para Sincronizar')
+
         print(datetime.now())
 
         time.sleep(sync.time)

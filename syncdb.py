@@ -43,6 +43,7 @@ if __name__ == '__main__':
             i = 0
             sincronizado = []
             for row in cassandra_iter:
+                #existencia do ID no resultado do Elasticsearch
                 indice = sync.exist_id(row, elastic_search)
 
                 if(indice):
@@ -73,11 +74,11 @@ if __name__ == '__main__':
 
             i = 0
             for row in elastic_search:
+                #verificacao do ID ja verificado no Elasticsearch, ignorando essas ocorrencias
                 verificado = sync.exist_id(row, sincronizado)
 
                 if(not verificado):
                     cluster.received_to_elasticsearch(prepare_to_cassandra[i])
-
 
                 i += 1
 
